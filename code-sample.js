@@ -28,6 +28,9 @@ class CodeSample extends PolymerElement {
           font-family: var(--code-sample-font-family, Operator Mono, Inconsolata, Roboto Mono, monaco, consolas, monospace);
           font-size: var(--code-sample-font-size, 14px);
         }
+        pre code {
+          @apply --code-sample-code;
+        }
         .hljs {
           padding: 0 20px;
           line-height: 1.3;

@@ -16,7 +16,7 @@
   },
   "homepage": "https://github.com/yang-zzhong/code-sample/",
   "name": "code-sample",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "main": "code-sample.js",
   "author": "yang zhong <hackyoung110@gmail.com>",
   "license": "MIT",
