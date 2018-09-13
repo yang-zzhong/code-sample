@@ -16,12 +16,15 @@
   },
   "homepage": "https://github.com/yang-zzhong/code-sample/",
   "name": "code-sample",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "main": "code-sample.js",
   "author": "yang zhong <hackyoung110@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "@polymer/polymer": "^3.0.0",
+    "@polymer/iron-icon": "^3.0.0-pre.21",
+    "@polymer/iron-iconset-svg": "^3.0.0-pre.21",
+    "boo-window": "0.1.4",
     "highlightjs": "^9.10.0"
   },
   "devDependencies": {

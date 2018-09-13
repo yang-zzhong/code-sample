@@ -1,5 +1,9 @@
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
+import '@polymer/neon-animation/animations/hero-animation.js';
 import 'highlightjs/highlight.pack.min.js';
+import '@polymer/iron-iconset-svg/iron-iconset-svg.js';
+import '@polymer/iron-icon/iron-icon.js';
+import 'boo-window/boo-window.js';
 
 /* global hljs */
 
@@ -48,35 +52,70 @@ class CodeSample extends PolymerElement {
         #code-container:hover {
           @apply --code-sample-code-container-hover;
         }
-        #code-container:hover > button {
-          @apply --code-sample-code-container-hover-button;
-        }
-        button {
+        div.toolbar {
           background: #e0e0e0;
-          border: none;
-          cursor: pointer;
-          display: block;
-          visibility: hidden;
           position: absolute;
+          display: block;
           right: 0;
           top: 0;
-          text-transform: uppercase;
-          @apply --code-sample-copy-clipboard-button;
+          visibility: hidden;
         }
-        :host([copy-clipboard-button]) button {
+        iron-icon {
+          cursor: pointer;
+        }
+        :host(:hover) div.toolbar {
           visibility: visible;
         }
       </style>
+
+      <iron-iconset-svg size="28" name="icons">
+        <svg><defs>
+          <g id="content-copy"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"></path></g>
+          <g id="fullscreen"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"></path></g>
+          <g id="fullscreen-exit"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"></path></g>
+        </defs></svg>
+      </iron-iconset-svg>
+
+      <boo-window
+        id="win"
+        opened="{{fullOpened}}"
+        width="90%" pos-policy="center">
+
+        <div slot="content" style="position: relative">
+          <div class="toolbar">
+
+            <iron-icon
+              title="退出全屏"
+              icon="icons:fullscreen-exit"
+              on-click="_closeFull"></iron-icon>
+
+            <iron-icon
+              title="复制到粘贴板"
+              icon="icons:content-copy"
+              on-click="_copyToClipboard"></iron-icon>
+
+          </div>
+          <pre id="fullCode"></pre>
+        </div>
+
+      </boo-window>
+
       <div id="theme"></div>
       <div id="demo" class="demo"></div>
 
       <slot id="content"></slot>
 
       <div id="code-container">
-        <button id="copy-button"
-          id="copyButton"
-          title="Copy to clipboard"
-          on-click="_copyToClipboard">Copy</button>
+        <div class="toolbar">
+          <iron-icon
+            title="全屏"
+            icon="icons:fullscreen"
+            on-click="_openFullCode"></iron-icon>
+          <iron-icon
+            title="复制到粘贴板"
+            icon="icons:content-copy"
+            on-click="_copyToClipboard"></iron-icon>
+        </div>
         <pre id="code"></pre>
       </div>
     `;
@@ -84,10 +123,13 @@ class CodeSample extends PolymerElement {
 
   static get properties() {
     return {
-      // Set to true to show a copy to clipboard button.
-      copyClipboardButton: {
+      showToolbar: {
         type: Boolean,
         reflectToAttribute: true
+      },
+      fullOpened: {
+        type: Boolean,
+        notify: true
       },
       // Tagged template literal with custom styles.
       theme: {
@@ -113,6 +155,16 @@ class CodeSample extends PolymerElement {
     return value.replace(/-./g,
       (match) => match.charAt(1).toUpperCase()
     );
+  }
+
+  _openFullCode() {
+    this.fullOpened = true;
+    this.dispatchEvent(new CustomEvent("full-changed", {detail: {fullOpened: true}}));
+  }
+
+  _closeFull() {
+    this.fullOpened = false;
+    this.dispatchEvent(new CustomEvent("full-changed", {detail: {fullOpened: false}}));
   }
 
   _themeNameChanged(themeName) {
@@ -171,6 +223,13 @@ class CodeSample extends PolymerElement {
       let tmp = this.querySelector('template');
       this._updateContent(tmp);
     }, 1);
+    this.sharedElements = {
+      code: this.$.code,
+    };
+    this.$.win.sharedElements = {
+      code: this.$.win.shadowRoot.querySelector('.wrapper'),
+    };
+    this._animation();
   }
 
   code() {
@@ -193,7 +252,6 @@ class CodeSample extends PolymerElement {
     }
 
     this._highlight(template.innerHTML);
-    console.log(this.code());
   }
 
   _highlight(str) {
@@ -202,6 +260,7 @@ class CodeSample extends PolymerElement {
     this._code.innerHTML = this._entitize(this._cleanIndentation(str));
     this.$.code.appendChild(this._code);
     hljs.highlightBlock(this._code);
+    this.$.fullCode.appendChild(this._code.cloneNode(true));
   }
 
   _cleanIndentation(str) {
@@ -241,6 +300,23 @@ class CodeSample extends PolymerElement {
     }.bind(this), 1000);
 
     return result;
+  }
+
+  _animation() {
+   this.$.win.animationConfig = {
+      entry: [{
+        name: "hero-animation",
+        id: "code",
+        fromPage: this,
+        toPage: this.$.win,
+      }],
+      exit: [{
+        name: "hero-animation",
+        id: "code",
+        fromPage: this.$.win,
+        toPage: this,
+      }]
+    };
   }
 }
 
