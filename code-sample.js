@@ -173,6 +173,15 @@ class CodeSample extends PolymerElement {
     }, 1);
   }
 
+  code() {
+    let tmp = this.querySelector('template');
+    if (tmp) {
+      return tmp.innerHTML;
+    }
+
+    return "";
+  }
+
   _updateContent(template) {
     if (this._code) this._code.parentNode.removeChild(this._code);
     if (this._demo) this.$.demo.innerHTML = '';
@@ -184,6 +193,7 @@ class CodeSample extends PolymerElement {
     }
 
     this._highlight(template.innerHTML);
+    console.log(this.code());
   }
 
   _highlight(str) {
