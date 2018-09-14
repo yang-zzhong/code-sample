@@ -32,12 +32,22 @@ class CodeSample extends PolymerElement {
           font-family: var(--code-sample-font-family, Operator Mono, Inconsolata, Roboto Mono, monaco, consolas, monospace);
           font-size: var(--code-sample-font-size, 14px);
         }
-        pre code {
-          @apply --code-sample-code;
-        }
         .hljs {
           padding: 0 20px;
           line-height: 1.3;
+        }
+        .full-code-container {
+          @apply --code-sample-full-code-container;
+          max-height: 100vh;
+          overflow: auto;
+        }
+        .code-container {
+          @apply --code-sample-code-container;
+          max-height: 80vh;
+          overflow: auto;
+        }
+        .code-container:hover {
+          @apply --code-sample-code-container-hover;
         }
         .demo:not(:empty) {
           padding: var(--code-sample-demo-padding, 0 0 20px);
@@ -47,10 +57,6 @@ class CodeSample extends PolymerElement {
         }
         #code-container {
           position: relative;
-          @apply --code-sample-code-container;
-        }
-        #code-container:hover {
-          @apply --code-sample-code-container-hover;
         }
         div.toolbar {
           background: #e0e0e0;
@@ -58,13 +64,12 @@ class CodeSample extends PolymerElement {
           display: block;
           right: 0;
           top: 0;
-          visibility: hidden;
+          visibility: visible;
+          color: black;
+          border-radius: 0px 0px 0px 3px;
         }
         iron-icon {
           cursor: pointer;
-        }
-        :host(:hover) div.toolbar {
-          visibility: visible;
         }
       </style>
 
@@ -95,7 +100,9 @@ class CodeSample extends PolymerElement {
               on-click="_copyToClipboard"></iron-icon>
 
           </div>
-          <pre id="fullCode"></pre>
+          <div class="full-code-container">
+            <pre id="fullCode"></pre>
+          </div>
         </div>
 
       </boo-window>
@@ -116,7 +123,9 @@ class CodeSample extends PolymerElement {
             icon="icons:content-copy"
             on-click="_copyToClipboard"></iron-icon>
         </div>
-        <pre id="code"></pre>
+        <div class="code-container">
+          <pre id="code"></pre>
+        </div>
       </div>
     `;
   }
@@ -264,8 +273,9 @@ class CodeSample extends PolymerElement {
   }
 
   _cleanIndentation(str) {
-    const pattern = str.match(/\s*\n[\t\s]*/);
-    return str.replace(new RegExp(pattern, 'g'), '\n');
+    return str;
+    // const pattern = str.match(/\s*\n[\t\s]*/);
+    // return str.replace(new RegExp(pattern, 'g'), '\n');
   }
 
   _entitize(str) {
