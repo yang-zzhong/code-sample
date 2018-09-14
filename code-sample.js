@@ -37,11 +37,13 @@ class CodeSample extends PolymerElement {
           line-height: 1.3;
         }
         .full-code-container {
+          -webkit-overflow-scrolling: touch;
           @apply --code-sample-full-code-container;
           max-height: 100vh;
           overflow: auto;
         }
         .code-container {
+          -webkit-overflow-scrolling: touch;
           @apply --code-sample-code-container;
           max-height: 80vh;
           overflow: auto;
@@ -67,6 +69,7 @@ class CodeSample extends PolymerElement {
           visibility: visible;
           color: black;
           border-radius: 0px 0px 0px 3px;
+          z-index: 1;
         }
         iron-icon {
           cursor: pointer;
