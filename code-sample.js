@@ -33,20 +33,20 @@ class CodeSample extends PolymerElement {
           font-size: var(--code-sample-font-size, 14px);
         }
         .hljs {
-          padding: 0 20px;
+          padding: 20px;
           line-height: 1.3;
         }
         .full-code-container {
           -webkit-overflow-scrolling: touch;
-          @apply --code-sample-full-code-container;
-          max-height: 100vh;
+          max-height: 90vh;
           overflow: auto;
+          @apply --code-sample-full-code-container;
         }
         .code-container {
           -webkit-overflow-scrolling: touch;
-          @apply --code-sample-code-container;
           max-height: 80vh;
           overflow: auto;
+          @apply --code-sample-code-container;
         }
         .code-container:hover {
           @apply --code-sample-code-container-hover;
@@ -57,7 +57,7 @@ class CodeSample extends PolymerElement {
         .demo {
           @apply --code-sample-demo;
         }
-        #code-container {
+        #codeContainer {
           position: relative;
         }
         div.toolbar {
@@ -74,6 +74,17 @@ class CodeSample extends PolymerElement {
         iron-icon {
           cursor: pointer;
         }
+        boo-window {
+          --boo-window-container: {
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, .3);
+            -moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, .3);
+            -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, .3);
+            border: 1px solid #f0f0f0;
+          }
+        }
+        boo-window[small-screen] .full-code-container {
+          max-height: 100vh;
+        }
       </style>
 
       <iron-iconset-svg size="28" name="icons">
@@ -81,13 +92,15 @@ class CodeSample extends PolymerElement {
           <g id="content-copy"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"></path></g>
           <g id="fullscreen"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"></path></g>
           <g id="fullscreen-exit"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"></path></g>
+          <g id="select-all"><path d="M3 5h2V3c-1.1 0-2 .9-2 2zm0 8h2v-2H3v2zm4 8h2v-2H7v2zM3 9h2V7H3v2zm10-6h-2v2h2V3zm6 0v2h2c0-1.1-.9-2-2-2zM5 21v-2H3c0 1.1.9 2 2 2zm-2-4h2v-2H3v2zM9 3H7v2h2V3zm2 18h2v-2h-2v2zm8-8h2v-2h-2v2zm0 8c1.1 0 2-.9 2-2h-2v2zm0-12h2V7h-2v2zm0 8h2v-2h-2v2zm-4 4h2v-2h-2v2zm0-16h2V3h-2v2zM7 17h10V7H7v10zm2-8h6v6H9V9z"></path></g>
         </defs></svg>
       </iron-iconset-svg>
 
       <boo-window
         id="win"
         opened="{{fullOpened}}"
-        width="90%" pos-policy="center">
+        width="90%"
+        pos-policy="center">
 
         <div slot="content" style="position: relative">
           <div class="toolbar">
@@ -96,7 +109,10 @@ class CodeSample extends PolymerElement {
               title="退出全屏"
               icon="icons:fullscreen-exit"
               on-click="_closeFull"></iron-icon>
-
+            <iron-icon
+              title="全选"
+              icon="icons:select-all"
+              on-click="_selectAll"></iron-icon>
             <iron-icon
               title="复制到粘贴板"
               icon="icons:content-copy"
@@ -115,12 +131,16 @@ class CodeSample extends PolymerElement {
 
       <slot id="content"></slot>
 
-      <div id="code-container">
+      <div id="codeContainer">
         <div class="toolbar">
           <iron-icon
             title="全屏"
             icon="icons:fullscreen"
             on-click="_openFullCode"></iron-icon>
+          <iron-icon
+            title="全选"
+            icon="icons:select-all"
+            on-click="_selectAll"></iron-icon>
           <iron-icon
             title="复制到粘贴板"
             icon="icons:content-copy"
@@ -148,6 +168,7 @@ class CodeSample extends PolymerElement {
         type: String,
         observer: '_themeChanged',
       },
+      _smallScreen: Boolean,
       // Set to true to render the code inside the template.
       render: Boolean,
       // Code type (optional). (eg.: html, js, css)
@@ -172,6 +193,17 @@ class CodeSample extends PolymerElement {
   _openFullCode() {
     this.fullOpened = true;
     this.dispatchEvent(new CustomEvent("full-changed", {detail: {fullOpened: true}}));
+  }
+
+  _selectAll() {
+    var range = document.createRange();
+    if (this.fullOpened) {
+      range.selectNode(this.$.fullCode);
+    } else {
+      range.selectNode(this.$.code);
+    }
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
   }
 
   _closeFull() {
@@ -236,7 +268,7 @@ class CodeSample extends PolymerElement {
       this._updateContent(tmp);
     }, 1);
     this.sharedElements = {
-      code: this.$.code,
+      code: this.$.codeContainer,
     };
     this.$.win.sharedElements = {
       code: this.$.win.shadowRoot.querySelector('.wrapper'),
